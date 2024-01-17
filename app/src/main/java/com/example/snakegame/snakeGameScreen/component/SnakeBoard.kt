@@ -1,9 +1,13 @@
 package com.example.snakegame.snakeGameScreen.component
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -13,22 +17,21 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import com.example.snakegame.snakeGameScreen.SnakeGameViewModel
+import androidx.compose.ui.unit.dp
 import com.example.snakegame.ui.theme.Custard
 import com.example.snakegame.ui.theme.RoyalBlue
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.snakegame.R
 import com.example.snakegame.ui.theme.Crin
 
 @Composable
 fun SnakeBoard(
-    viewModel: SnakeGameViewModel = viewModel()
+    state: SnakeGameState,
+    onEvent: (SnakeGameEvent) -> Unit
 ) {
 
-    val state = viewModel.state
+
 
     val foodImage = ImageBitmap.imageResource(id = R.drawable.img_apple)
     val snakeHeadImage = when(state.direction){
@@ -47,7 +50,7 @@ fun SnakeBoard(
                     return@pointerInput
                 }
                 detectTapGestures { offset ->
-                    viewModel.onEvent(
+                   onEvent(
                         SnakeGameEvent.UpdateDirection(offset, size.width)
                     )
                 }
@@ -75,6 +78,20 @@ fun SnakeBoard(
             snake = state.snake
         )
 
+    }
+
+    AnimatedVisibility(
+        visible = state.isGameOver
+    ) {
+        Text(
+            text = "Game Over!",
+            style = MaterialTheme.typography.displayMedium,
+            modifier = Modifier.padding(
+                vertical = 200.dp,
+                horizontal = 50.dp
+            )
+
+        )
     }
 
 }
@@ -161,10 +178,3 @@ private fun DrawScope.drawSnake(
 }
 
 
-@Preview
-@Composable
-fun Preview() {
-
-    SnakeBoard()
-
-}

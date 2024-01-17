@@ -1,7 +1,6 @@
 package com.example.snakegame.snakeGameScreen
 
 import android.media.MediaPlayer
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,21 +24,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.snakegame.snakeGameScreen.component.SnakeBoard
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.snakegame.R
 import com.example.snakegame.snakeGameScreen.component.GameState
 import com.example.snakegame.snakeGameScreen.component.SnakeGameEvent
+import com.example.snakegame.snakeGameScreen.component.SnakeGameState
 
 @Composable
 fun SnackGameScreen(
-    viewModel: SnakeGameViewModel = viewModel()
+    state: SnakeGameState,
+    onEvent: (SnakeGameEvent) -> Unit
 ) {
 
-    val state = viewModel.state
 
     val context = LocalContext.current
     val foodSound = remember {
@@ -90,7 +88,9 @@ fun SnackGameScreen(
                 .fillMaxWidth()
                 .aspectRatio(2 / 3f)
         ){
-            SnakeBoard()
+            SnakeBoard(
+                state, onEvent
+            )
         }
 
         Row(
@@ -104,7 +104,7 @@ fun SnackGameScreen(
                     .padding(2.dp)
                     .weight(1f),
                 onClick = {
-                    viewModel.onEvent(SnakeGameEvent.ResetGame)
+                    onEvent(SnakeGameEvent.ResetGame)
                 },
                 enabled = state.gameState == GameState.PAUSE || state.isGameOver
             ) {
@@ -125,10 +125,10 @@ fun SnackGameScreen(
                 onClick = {
                     when(state.gameState){
                         GameState.IDLE, GameState.PAUSE -> {
-                            viewModel.onEvent(SnakeGameEvent.StartGame)
+                            onEvent(SnakeGameEvent.StartGame)
                         }
                         GameState.Start -> {
-                            viewModel.onEvent(SnakeGameEvent.PauseGame)
+                            onEvent(SnakeGameEvent.PauseGame)
                         }
                     }
                 },
@@ -150,22 +150,8 @@ fun SnackGameScreen(
 
     }
 
-    AnimatedVisibility(visible = state.isGameOver) {
-        Text(
-            text = "Game Over",
-            style = MaterialTheme.typography.displayMedium,
-            modifier = Modifier.padding(16.dp)
-        )
-    }
 
 
 }
 
 
-@Preview
-@Composable
-fun Preview() {
-
-    SnackGameScreen()
-
-}
