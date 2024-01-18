@@ -23,15 +23,15 @@ import androidx.compose.ui.unit.dp
 import com.example.snakegame.ui.theme.Custard
 import com.example.snakegame.ui.theme.RoyalBlue
 import com.example.snakegame.R
+import com.example.snakegame.snakeGameScreen.SnakeGameViewModel
 import com.example.snakegame.ui.theme.Crin
 
 @Composable
 fun SnakeBoard(
-    state: SnakeGameState,
-    onEvent: (SnakeGameEvent) -> Unit
+    viewModel: SnakeGameViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
 
-
+    val state = viewModel.state
 
     val foodImage = ImageBitmap.imageResource(id = R.drawable.img_apple)
     val snakeHeadImage = when(state.direction){
@@ -45,12 +45,12 @@ fun SnakeBoard(
         modifier = Modifier
             .fillMaxWidth()
             .aspectRatio(2 / 3f)
-            .pointerInput(state.gameState){
-                if (state.gameState != GameState.Start){
+            .pointerInput(state.gameState) {
+                if (state.gameState != GameState.Start) {
                     return@pointerInput
                 }
                 detectTapGestures { offset ->
-                   onEvent(
+                    viewModel.onEvent(
                         SnakeGameEvent.UpdateDirection(offset, size.width)
                     )
                 }

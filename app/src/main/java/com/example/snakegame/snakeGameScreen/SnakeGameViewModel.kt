@@ -1,6 +1,9 @@
 package com.example.snakegame.snakeGameScreen
 
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,41 +13,43 @@ import com.example.snakegame.snakeGameScreen.component.GameState
 import com.example.snakegame.snakeGameScreen.component.SnakeGameEvent
 import com.example.snakegame.snakeGameScreen.component.SnakeGameState
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class SnakeGameViewModel: ViewModel() {
 
-    private val _state = MutableStateFlow(SnakeGameState())
-    val state = _state.asStateFlow()
+//    private val _state = MutableStateFlow(SnakeGameState())
+//    val state = _state.asStateFlow()
+
+    var state by mutableStateOf(SnakeGameState())
+        private set
 
 
     fun onEvent(event: SnakeGameEvent){
         when(event){
             is SnakeGameEvent.PauseGame -> {
-                _state.update { it.copy(gameState = GameState.PAUSE)
+                state = state.copy(gameState = GameState.PAUSE)
                 }
-            }
+
 
             is SnakeGameEvent.ResetGame -> {
-                _state.value = SnakeGameState()
+                state = SnakeGameState()
             }
 
             is SnakeGameEvent.StartGame -> {
-                _state.update { it.copy(gameState = GameState.Start) }
+                state = state.copy(gameState = GameState.Start)
                 viewModelScope.launch {
-                    while (state.value.gameState == GameState.Start) {
-                        val delayMillis = when (state.value.snake.size) {
-                            in 1..5 -> 180L
-                            in 6..10 -> 160L
-                            in 11..15 -> 130L
-                            in 16..20 -> 100L
+                    while (state.gameState == GameState.Start) {
+                        val delayMillis = when (state.snake.size) {
+                            in 1..5 -> 300L
+                            in 6..10 -> 280L
+                            in 11..15 -> 250L
+                            in 16..20 -> 210L
+                            in 21..25 -> 150L
+                            in 26..30 -> 100L
                             else -> 50L
                         }
                         delay(delayMillis)
-                        _state.value = updateGame(state.value)
+                        state = updateGame(state)
                     }
                 }
             }
@@ -56,15 +61,15 @@ class SnakeGameViewModel: ViewModel() {
     }
 
     private fun updateDirection(offset: Offset, canvasWidth: Int) {
-        if (!state.value.isGameOver) {
-            val cellSize = canvasWidth / state.value.xAxisGridSize
+        if (!state.isGameOver) {
+            val cellSize = canvasWidth / state.xAxisGridSize
             val tapX = (offset.x / cellSize).toInt()
             val tapY = (offset.y / cellSize).toInt()
-            val head = state.value.snake.first()
+            val head = state.snake.first()
 
-            _state.update {
-                it.copy(
-                    direction = when (state.value.direction) {
+            state =
+                state.copy(
+                    direction = when (state.direction) {
                         Direction.UP, Direction.DOWN -> {
                             if (tapX < head.x) Direction.LEFT else Direction.RIGHT
                         }
@@ -74,7 +79,6 @@ class SnakeGameViewModel: ViewModel() {
                         }
                     }
                 )
-            }
         }
     }
 

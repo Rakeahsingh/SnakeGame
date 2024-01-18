@@ -30,13 +30,13 @@ import com.example.snakegame.snakeGameScreen.component.SnakeBoard
 import com.example.snakegame.R
 import com.example.snakegame.snakeGameScreen.component.GameState
 import com.example.snakegame.snakeGameScreen.component.SnakeGameEvent
-import com.example.snakegame.snakeGameScreen.component.SnakeGameState
 
 @Composable
 fun SnackGameScreen(
-    state: SnakeGameState,
-    onEvent: (SnakeGameEvent) -> Unit
+    viewModel: SnakeGameViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
+
+    val state = viewModel.state
 
 
     val context = LocalContext.current
@@ -88,9 +88,7 @@ fun SnackGameScreen(
                 .fillMaxWidth()
                 .aspectRatio(2 / 3f)
         ){
-            SnakeBoard(
-                state, onEvent
-            )
+            SnakeBoard()
         }
 
         Row(
@@ -104,7 +102,7 @@ fun SnackGameScreen(
                     .padding(2.dp)
                     .weight(1f),
                 onClick = {
-                    onEvent(SnakeGameEvent.ResetGame)
+                    viewModel.onEvent(SnakeGameEvent.ResetGame)
                 },
                 enabled = state.gameState == GameState.PAUSE || state.isGameOver
             ) {
@@ -125,10 +123,10 @@ fun SnackGameScreen(
                 onClick = {
                     when(state.gameState){
                         GameState.IDLE, GameState.PAUSE -> {
-                            onEvent(SnakeGameEvent.StartGame)
+                            viewModel.onEvent(SnakeGameEvent.StartGame)
                         }
                         GameState.Start -> {
-                            onEvent(SnakeGameEvent.PauseGame)
+                            viewModel.onEvent(SnakeGameEvent.PauseGame)
                         }
                     }
                 },
